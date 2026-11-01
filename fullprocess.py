@@ -65,3 +65,10 @@ import reporting
 # retry using the current matching deployment (a completed deployment is not rolled back).
 # Do not infer success from partial outputs or acknowledge files arriving mid-run.
 # Keep runs serialized; verify an unchanged-input rerun stops and a failed run can retry.
+
+
+if __name__ == '__main__':
+    raise NotImplementedError(
+        "Implement the new-input, drift, conditional deployment, reporting and "
+        "successful-processing workflow described above (Step 5)."
+    )

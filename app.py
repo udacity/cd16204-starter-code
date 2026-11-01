@@ -24,27 +24,39 @@ prediction_model = None
 def predict():        
     # Read the local CSV path from the JSON field dataset_path into a DataFrame,
     # then pass it to the Step 3 model_predictions function (deployed model).
-    return # Add return value for prediction outputs
+    raise NotImplementedError(
+        "Implement POST /prediction: load the caller's dataset_path and return "
+        "deployed-model predictions (Step 4)."
+    )
 
 ####################### Scoring Endpoint
 @app.route("/scoring", methods=['GET','OPTIONS'])
 def scoring_endpoint():
     # Score the deployed model on test_data_path/testdata.csv using score_model.
     # Do not overwrite the deployed baseline score.
-    return # Add return value (a single F1 score number)
+    raise NotImplementedError(
+        "Implement GET /scoring: return deployed-model test F1 without changing its "
+        "baseline (Step 4)."
+    )
 
 ####################### Summary Statistics Endpoint
 @app.route("/summarystats", methods=['GET','OPTIONS'])
 def summarystats_endpoint():
     # Return means, medians, and standard deviations for numeric columns.
-    return # Return a list of all calculated summary statistics
+    raise NotImplementedError(
+        "Implement GET /summarystats: return ingested-data numeric summary "
+        "statistics (Step 4)."
+    )
 
 ####################### Diagnostics Endpoint
 @app.route("/diagnostics", methods=['GET','OPTIONS'])
 def diagnostics_endpoint():
     # Return ingestion/training timings, missing-value percentages for all columns,
     # and the dependency version table. Do not replace the deployed model.
-    return # Add return value for all diagnostics
+    raise NotImplementedError(
+        "Implement GET /diagnostics: return timing, missing-data and offline "
+        "dependency diagnostics (Step 4)."
+    )
 
 if __name__ == "__main__":    
     app.run(host='127.0.0.1', port=8000, debug=True, threaded=True)

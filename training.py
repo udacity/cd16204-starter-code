@@ -31,4 +31,15 @@ def train_model():
     # Fit the logistic regression to your data
     
     # Write the trained model to your workspace in a file called trainedmodel.pkl
+    raise NotImplementedError(
+        "Implement train_model(): fit and save the configured model using ingested "
+        "data (Step 2)."
+    )
+
+
+if __name__ == '__main__':
+    raise NotImplementedError(
+        "Implement train_model() and connect this script entry point to the "
+        "configured inputs (Step 2)."
+    )
 
