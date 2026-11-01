@@ -8,36 +8,29 @@ Follow the [project classroom](https://learn.udacity.com/cd0583?version=1.2&less
 
 ## Set up your environment
 
-Clone the repository and work from its root directory; the templates load `config.json` and data using relative paths.
+### Udacity Workspace (recommended)
+
+Use the preinstalled `ml` environment from `/workspace/cd16204-starter-code`.
+Maintainers provision the required software before learners start; learners do
+not install packages or create a virtual environment. Image provisioning and
+fresh-Workspace validation are tracked separately in issues #31 and #32.
+
+### Optional maintainer/reviewer setup
+
+Outside the learner Workspace, use Python 3.13 and an isolated environment:
 
 ```bash
-git clone https://github.com/udacity/cd0583-project-starter-file.git
-cd cd0583-project-starter-file
-```
-
-### Development container
-
-The repository includes a Python 3.14 development-container configuration. With Docker and the VS Code Dev Containers extension available, open the repository and select **Dev Containers: Reopen in Container**. In the container terminal, install the dependencies:
-
-```bash
-python -m pip install -r requirements.txt
-python -m pip check
-```
-
-The container configuration does not install dependencies automatically.
-
-### Local Python environment
-
-The dependency set has been checked with Python 3.14.3 on Linux ARM64. Other platforms have not been runtime-verified for this starter.
-
-On macOS or Linux, create and activate a virtual environment:
-
-```bash
-python3.14 -m venv .venv
+python3.13 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 python -m pip check
+python scripts/software_smoke.py
 ```
+
+Alternatively, use the optional VS Code devcontainer, which installs requirements
+at creation. See [Workspace software specification](WORKSPACE_SOFTWARE.md) for
+image requirements, optional extension policy and verification limits. Neither
+optional setup is a learner installation requirement.
 
 ## Repository layout
 
