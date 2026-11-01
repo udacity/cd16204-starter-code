@@ -24,6 +24,7 @@ prediction_model = None
 def predict():        
     # Read the local CSV path from the JSON field dataset_path into a DataFrame,
     # then pass it to the Step 3 model_predictions function (deployed model).
+    # Return {"predictions": [class_label, ...]} in input row order.
     raise NotImplementedError(
         "Implement POST /prediction: load the caller's dataset_path and return "
         "deployed-model predictions (Step 4)."
@@ -33,7 +34,7 @@ def predict():
 @app.route("/scoring", methods=['GET','OPTIONS'])
 def scoring_endpoint():
     # Score the deployed model on test_data_path/testdata.csv using score_model.
-    # Do not overwrite the deployed baseline score.
+    # Do not overwrite the deployed baseline score. Return {"f1": number}.
     raise NotImplementedError(
         "Implement GET /scoring: return deployed-model test F1 without changing its "
         "baseline (Step 4)."
@@ -42,7 +43,10 @@ def scoring_endpoint():
 ####################### Summary Statistics Endpoint
 @app.route("/summarystats", methods=['GET','OPTIONS'])
 def summarystats_endpoint():
-    # Return means, medians, and standard deviations for numeric columns.
+    # Return {"columns": [numeric_column_name, ...],
+    #         "statistics": [[mean, median, sample_std], ...]}.
+    # Align CSV numeric-column order with the Step 3 triples (ddof=1, skip NA).
+    # Use JSON null for undefined/nonfinite statistics, not NaN/Infinity.
     raise NotImplementedError(
         "Implement GET /summarystats: return ingested-data numeric summary "
         "statistics (Step 4)."
@@ -53,6 +57,12 @@ def summarystats_endpoint():
 def diagnostics_endpoint():
     # Return ingestion/training timings, missing-value percentages for all columns,
     # and the dependency version table. Do not replace the deployed model.
+    # Return {"timing_seconds": [ingestion_seconds, training_seconds],
+    #         "missing_columns": [every_column_name, ...],
+    #         "missing_percentages": [percentage, ...], "dependencies": {...}}.
+    # Align missing values with CSV column order; empty-dataset percentages are null.
+    # dependencies has snapshot_date, provenance and three-column rows, as in
+    # diagnostics.py. Use native JSON values; see README Diagnostic output contract.
     raise NotImplementedError(
         "Implement GET /diagnostics: return timing, missing-data and offline "
         "dependency diagnostics (Step 4)."
