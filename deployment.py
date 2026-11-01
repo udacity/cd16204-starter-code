@@ -25,7 +25,13 @@ def store_model_into_pickle(model):
     # Copy the latest pickle file, the latestscore.txt value, 
     # and the ingestedfiles.txt file into the deployment directory.
     # The score must describe the model being copied, not an earlier model.
-        
-        
-        
+    raise NotImplementedError(
+        "Implement store_model_into_pickle(model): deploy the candidate model with "
+        "its matching score and ingestion record (Step 2)."
+    )
+if __name__ == '__main__':
+    raise NotImplementedError(
+        "Implement store_model_into_pickle() and connect this script entry point to "
+        "the configured candidate artifacts (Step 2)."
+    )
 

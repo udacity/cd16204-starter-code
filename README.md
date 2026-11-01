@@ -2,7 +2,7 @@
 
 Starter files for the **A Dynamic Risk Assessment System** project in Udacity's **Chevron ML Model Scoring and Monitoring** course (`cd16204`), adapted from the CD0583 project. Build a workflow that trains, deploys, evaluates, and monitors a model for corporate-client attrition risk.
 
-This repository contains **unfinished templates**, not a completed solution. Several files intentionally contain blank assignments or incomplete function bodies and will raise syntax errors until you implement them. The preinstalled software does not make the unfinished pipeline runnable.
+This repository contains **unfinished templates**, not a completed solution. Python files have valid syntax; unimplemented operations raise `NotImplementedError` with the task and project step to complete. Successful syntax compilation or import does not mean the pipeline is implemented. Run imports from the project root because the templates read `config.json` there. The preinstalled software does not make the unfinished pipeline runnable.
 
 Follow the [CD16204 project classroom](https://learn.udacity.com/cd16204?version=1.3&lessonKey=b6f49ff6-7544-486d-a913-73028a0472e9&conceptKey=16fce2d4-a2d9-4d1b-93c6-eb568f4e2559) and its rubric for the full requirements and submission instructions. Classroom access requires enrollment. The starter repository is [udacity/cd16204-starter-code](https://github.com/udacity/cd16204-starter-code); the supplied Workspace already contains the project files, so cloning or a GitHub account is not required.
 
@@ -105,9 +105,14 @@ their second-run counterparts and `cronjob.txt` at the project root.
 These are implementation tasks, not features already provided by the templates. Generated models, scores, reports, API responses, and a completed cron job are intentionally absent from the starter.
 
 After implementing each stage, make its script runnable from the project root.
-In particular, `training.py`, `scoring.py` and `deployment.py` currently define
-unfinished functions without script entry points; connecting those functions
-to their inputs is part of your work. The intended first-run sequence is:
+In particular, `training.py`, `scoring.py` and `deployment.py` contain unfinished
+functions and script entry-point placeholders; connecting those functions
+to their inputs is part of your work. Replace the relevant `NotImplementedError`
+markers with your own implementation. `apicalls.py` keeps its unfinished requests
+inside `main()` so importing it does not make HTTP calls. Importing the project
+modules does not run the pipeline or start a server; running `app.py` or optional
+`wsgi.py` explicitly starts their supplied development server, whose unfinished
+endpoints still raise `NotImplementedError`. The intended first-run sequence is:
 
 ```bash
 python ingestion.py

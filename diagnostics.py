@@ -16,25 +16,37 @@ test_data_path = os.path.join(config['test_data_path'])
 def model_predictions(dataframe):
     # Read the model from prod_deployment_path and predict for the supplied DataFrame.
     # Select the same predictor columns used for training; do not include the target.
-    return # Return value should be a list containing all predictions
+    raise NotImplementedError(
+        "Implement model_predictions(dataframe): predict using the deployed model "
+        "(Step 3)."
+    )
 
 ################## Function to get summary statistics
 def dataframe_summary():
     # Read the ingested dataset from output_folder_path. For each numeric column,
     # calculate mean, median, and standard deviation.
-    return # Return value should be a list containing all summary statistics
+    raise NotImplementedError(
+        "Implement dataframe_summary(): return numeric-column summary statistics "
+        "(Step 3)."
+    )
 
 ################## Function to check missing data
 def missing_data():
     # Calculate missing-value percentages for every ingested dataset column,
     # including nonnumeric columns, and return a list in column order.
-    return
+    raise NotImplementedError(
+        "Implement missing_data(): return missing-value percentages for every "
+        "column (Step 3)."
+    )
 
 ##################Function to get timings
 def execution_time():
     # Time ingestion.py and training.py, in that order, as required by Step 3
     # and the rubric. Isolate timing outputs; do not replace the deployed model.
-    return # Return a list of 2 timing values in seconds
+    raise NotImplementedError(
+        "Implement execution_time(): return ingestion/training timings in seconds "
+        "without replacing deployment (Step 3)."
+    )
 
 ################## Function to check dependencies
 def outdated_packages_list():
@@ -47,6 +59,10 @@ def outdated_packages_list():
     # A version difference is not proof that the installed version is older.
     # Do not query a registry, run pip list --outdated, or install/upgrade packages.
     # Keep this function name for the API exercise; it does not mean live latest.
+    raise NotImplementedError(
+        "Implement outdated_packages_list(): compare installed versions with the "
+        "bundled dated reference without network access (Step 3)."
+    )
 
 
 if __name__ == '__main__':

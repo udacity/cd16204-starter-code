@@ -28,4 +28,15 @@ def score_model(model, dataframe, score_path=None):
     # Drift check: use the same deployed model and newly ingested data.
     # Write latestscore.txt only when score_path is supplied; API and drift checks
     # must not overwrite the deployed baseline score.
+    raise NotImplementedError(
+        "Implement score_model(model, dataframe, score_path=None): return F1 for "
+        "the explicit inputs and save only when requested (Step 2)."
+    )
+
+
+if __name__ == '__main__':
+    raise NotImplementedError(
+        "Implement score_model() and connect this script entry point to the "
+        "candidate model, test data and score path (Step 2)."
+    )
 

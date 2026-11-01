@@ -19,6 +19,10 @@ output_folder_path = config['output_folder_path']
 ############# Function for data ingestion
 def merge_multiple_dataframe():
     # Check for datasets, compile them together, and write to an output file
+    raise NotImplementedError(
+        "Implement merge_multiple_dataframe(): discover, combine and deduplicate "
+        "the configured CSV inputs and save ingestion outputs (Step 1)."
+    )
 
 
 

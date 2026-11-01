@@ -5,16 +5,23 @@ URL = "http://127.0.0.1:8000"
 
 
 
-# Call each API endpoint and store the responses
-response1 = # Put an API call here
-response2 = # Put an API call here
-response3 = # Put an API call here
-response4 = # Put an API call here
+def main():
+    # Call each API endpoint and store the responses.
+    # response1 = ...
+    # response2 = ...
+    # response3 = ...
+    # response4 = ...
 
-# Combine all API responses
-responses = #combine reponses here
+    # Combine all API responses.
+    # responses = ...
 
-# Write the responses to your workspace
+    # Write the responses to your workspace.
+    raise NotImplementedError(
+        "Implement apicalls.main(): call all four local API endpoints over HTTP and "
+        "save their combined responses (Step 4)."
+    )
 
 
+if __name__ == '__main__':
+    main()
 

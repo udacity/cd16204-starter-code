@@ -23,6 +23,10 @@ dataset_csv_path = os.path.join(config['output_folder_path'])
 def score_model():
     # Calculate a confusion matrix using the test data and the deployed model
     # and write the confusion matrix to the workspace
+    raise NotImplementedError(
+        "Implement reporting.score_model(): save the deployed model's test-data "
+        "confusion matrix (Step 4)."
+    )
 
 
 
