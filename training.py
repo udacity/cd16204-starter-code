@@ -17,6 +17,8 @@ model_path = os.path.join(config['output_model_path'])
 
 
 ################# Function for training the model
+# Run from the CD16204 project root. Implement the function and a script entry
+# point so `python training.py` trains using the paths in config.json.
 def train_model():
     
     # use this logistic regression for training

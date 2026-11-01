@@ -1,23 +1,37 @@
 # A Dynamic Risk Assessment System
 
-Starter files for the **A Dynamic Risk Assessment System** project in Udacity's **ML Model Scoring and Monitoring** course (`cd0583`). Build a workflow that trains, deploys, evaluates, and monitors a model for corporate-client attrition risk.
+Starter files for the **A Dynamic Risk Assessment System** project in Udacity's **Chevron ML Model Scoring and Monitoring** course (`cd16204`), adapted from the CD0583 project. Build a workflow that trains, deploys, evaluates, and monitors a model for corporate-client attrition risk.
 
-This repository contains **unfinished templates**, not a completed solution. Several files intentionally contain blank assignments or incomplete function bodies and will raise syntax errors until you implement them. Installing dependencies alone does not make the pipeline runnable.
+This repository contains **unfinished templates**, not a completed solution. Several files intentionally contain blank assignments or incomplete function bodies and will raise syntax errors until you implement them. The preinstalled software does not make the unfinished pipeline runnable.
 
-Follow the [project classroom](https://learn.udacity.com/cd0583?version=1.2&lessonKey=f247329b-1a30-4dd7-807f-ef12cd975ae3&conceptKey=d7b9b451-4ee0-4b5d-bd99-64f5a67c44fd) and its rubric for the full requirements and submission instructions. Classroom access requires enrollment.
+Follow the [CD16204 project classroom](https://learn.udacity.com/cd16204?version=1.3&lessonKey=b6f49ff6-7544-486d-a913-73028a0472e9&conceptKey=16fce2d4-a2d9-4d1b-93c6-eb568f4e2559) and its rubric for the full requirements and submission instructions. Classroom access requires enrollment. The starter repository is [udacity/cd16204-starter-code](https://github.com/udacity/cd16204-starter-code); the supplied Workspace already contains the project files, so cloning or a GitHub account is not required.
 
 ## Set up your environment
 
 ### Udacity Workspace (recommended)
 
-Use the preinstalled `ml` environment from `/workspace/cd16204-starter-code`.
-Maintainers provision the required software before learners start; learners do
-not install packages or create a virtual environment. Image provisioning and
-fresh-Workspace validation are tracked separately in issues #31 and #32.
+Use the supplied Workspace and its preinstalled Python 3.13 `ml` environment.
+New terminals and the editor should use `/opt/conda/envs/ml/bin/python`.
+From a Workspace terminal, check the project root and interpreter:
+
+```bash
+cd /workspace/cd16204-starter-code
+pwd
+python -c "import sys; print(sys.executable)"
+```
+
+The interpreter should be `/opt/conda/envs/ml/bin/python`. If a terminal is using
+another existing environment, run `conda activate ml` and check again. Keep the
+shared environment's installed versions. Do not install packages, create a venv,
+or download missing project files. If required files or software are missing,
+report the Workspace setup problem. Run every project command from this root;
+the templates read `config.json` and resolve its paths relative to the current
+working directory. Use the same root and `ml` environment in additional terminals.
 
 ### Optional maintainer/reviewer setup
 
-Outside the learner Workspace, use Python 3.13 and an isolated environment:
+Outside the learner Workspace, obtain the CD16204 starter and run from its root.
+Use Python 3.13 and an isolated environment:
 
 ```bash
 python3.13 -m venv .venv
@@ -53,8 +67,8 @@ optional setup is a learner installation requirement.
 | `sourcedata/` | Supplied source inputs: `dataset3.csv` and `dataset4.csv`. |
 | `testdata/` | Supplied evaluation input: `testdata.csv`. |
 | `ingesteddata/` | Destination for your ingestion outputs. |
-| `practicemodels/` | Destination for your practice models and reports. |
-| `models/` | Destination for your later-stage models and reports. |
+| `practicemodels/` | Destination for your practice model and score. |
+| `models/` | Destination for your later-stage model and score. |
 | `production_deployment/` | Destination for your deployed model and associated records. |
 
 The five supplied CSV files contain fabricated corporate data. The four output directories initially contain only `.gitkeep` files; these preserve the directory structure and are not input data.
@@ -73,6 +87,13 @@ The starter begins with practice paths:
 
 For the process-automation stage, follow the classroom instructions to switch `input_folder_path` to `sourcedata` and `output_model_path` to `models`. Keep the directory structure consistent when using a local environment or the Udacity Workspace.
 
+All five values are relative to the project root. Use `testdata/testdata.csv`
+for test-data scoring and reporting. Keep ingestion outputs (`finaldata.csv`,
+`ingestedfiles.txt`) under `ingesteddata/`; model and score under the configured
+model-output folder; and the deployed model, matching score and ingestion record
+under `production_deployment/`. Save `confusionmatrix.png`, `apireturns.txt`,
+their second-run counterparts and `cronjob.txt` at the project root.
+
 ## Complete the project
 
 1. **Data ingestion:** combine the input CSV data and record which files were ingested.
@@ -82,6 +103,26 @@ For the process-automation stage, follow the classroom instructions to switch `i
 5. **Process automation:** stop if there is no new data. Otherwise, ingest and check for drift, retrain and redeploy only when needed, then generate reports using the current deployed model in either case. Configure the required cron job according to the classroom instructions.
 
 These are implementation tasks, not features already provided by the templates. Generated models, scores, reports, API responses, and a completed cron job are intentionally absent from the starter.
+
+After implementing each stage, make its script runnable from the project root.
+In particular, `training.py`, `scoring.py` and `deployment.py` currently define
+unfinished functions without script entry points; connecting those functions
+to their inputs is part of your work. The intended first-run sequence is:
+
+```bash
+python ingestion.py
+python training.py
+python scoring.py
+python deployment.py
+python diagnostics.py
+```
+
+These commands are for your completed scripts. Do not expect the starter to pass
+them before implementing the exercises. Start the API and produce the first
+reports as described below. After completing the automation stage and switching
+the configuration to `sourcedata`/`models`, run `python fullprocess.py` with the
+local API running. Retain the required ten-minute scheduling exercise from the
+classroom; manual execution alone does not replace it.
 
 Calculate the mean, median, and standard deviation for each numeric column in the ingested dataset and return the results as a Python list. Calculate missing-value percentages for every column. Time ingestion and training, as specified by Step 3 and the rubric, without replacing the deployed model.
 
@@ -130,7 +171,19 @@ After implementing the required functions and creating the necessary data and mo
 python app.py
 ```
 
-The template uses port **8000**. In a second terminal using the same Python environment, run your completed `apicalls.py` against `http://127.0.0.1:8000`.
+The development server binds to `127.0.0.1` on port **8000**. Keep it running.
+In a second terminal at the same project root using `ml`, run the completed
+first-run reporting scripts:
+
+```bash
+python apicalls.py
+python reporting.py
+```
+
+Use `http://127.0.0.1:8000` for API requests. POST `/prediction` accepts JSON
+with `dataset_path`, such as `{"dataset_path": "testdata/testdata.csv"}`; load
+that local CSV before invoking the prediction helper. A hosted server, public
+URL and WSGI deployment are not required. `wsgi.py` is optional server context.
 
 | Method | Endpoint | Intended response |
 | --- | --- | --- |

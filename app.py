@@ -22,7 +22,7 @@ prediction_model = None
 ####################### Prediction Endpoint
 @app.route("/prediction", methods=['POST','OPTIONS'])
 def predict():        
-    # Load the dataset at the location supplied in the request into a DataFrame,
+    # Read the local CSV path from the JSON field dataset_path into a DataFrame,
     # then pass it to the Step 3 model_predictions function (deployed model).
     return # Add return value for prediction outputs
 
@@ -47,4 +47,4 @@ def diagnostics_endpoint():
     return # Add return value for all diagnostics
 
 if __name__ == "__main__":    
-    app.run(host='0.0.0.0', port=8000, debug=True, threaded=True)
+    app.run(host='127.0.0.1', port=8000, debug=True, threaded=True)
