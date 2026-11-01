@@ -28,6 +28,52 @@ report the Workspace setup problem. Run every project command from this root;
 the templates read `config.json` and resolve its paths relative to the current
 working directory. Use the same root and `ml` environment in additional terminals.
 
+### Resume after a Workspace restart
+
+Saved files under `/workspace` are different from running processes and installed
+scheduler state. Jobs run only while Workspace is running; missed runs are not
+promised to replay. Inactivity timeouts depend on Workspace settings.
+
+1. **Reconnect without Reset.** Reload the classroom/editor, or use its
+   Reconnect/Reload Window controls. Use Workspace Refresh/Start when offered;
+   complete normal Udacity reauthorization if prompted. Report a persistent blank
+   editor rather than changing browser security settings or sharing session links.
+   **Data Reset overwrites work with starter files. Download a backup first.**
+2. **Check saved files and `ml`.** In a fresh terminal:
+
+   ```bash
+   cd /workspace/cd16204-starter-code
+   pwd
+   python -c "import sys; print(sys.executable)"
+   ```
+
+   Expect `/opt/conda/envs/ml/bin/python`; use `conda activate ml` if needed.
+   Check source, configured artifacts and, after Step 5 setup, `processedfiles.json`.
+   Follow its recovery contract if missing/malformed; do not silently reseed it.
+   No installation or new environment is needed.
+3. **Check scheduling after Step 5.** Run `/etc/init.d/cron status` and
+   `crontab -l`. If stopped, use `/etc/init.d/cron start` and recheck. Report missing
+   tools/startup failures; no sudo, installation or `service cron start`.
+   An empty crontab is normal before setup. Restore missing entries using Step 5
+   while preserving unrelated jobs; saved `cronjob.txt` alone is not registration.
+4. **Restore the completed API.** Reuse the running project server, or start
+   `python app.py` in a separate terminal at the same root using `ml`. Keep
+   `127.0.0.1:8000` available; do not start a duplicate server.
+5. **Catch up with the completed pipeline.** Use the same overlap lock as cron.
+   If your entry uses the root-level `.fullprocess.lock`, run:
+
+   ```bash
+   /usr/bin/flock -n .fullprocess.lock /opt/conda/envs/ml/bin/python fullprocess.py
+   ```
+
+   Use your entry's actual lock path if different; if held, let that run finish.
+   No new paths means a normal stop. Repair failures before retrying, preserving
+   processing state. An unfinished starter still raises `NotImplementedError`.
+6. **Confirm resumed scheduling.** With Workspace and API running, check
+   `fullprocess.log` for a fresh timestamped scheduled invocation/result. A log may
+   be absent before its first run. Older logs, manual catch-up or listing the entry
+   alone are insufficient; retain actual evidence and required saved project files.
+
 ### Optional maintainer/reviewer setup
 
 Outside the learner Workspace, obtain the CD16204 starter and run from its root.
@@ -400,7 +446,8 @@ separate validation scenarios. Keep the first report pair, preserve the
 deployed baseline during drift checks, and never change labels or baseline
 scores to force drift. Cron registration is Workspace state, not a portable
 file: document the supported installation/recovery steps and retain the actual
-invocation log. Scheduling runs only while the Workspace is running.
+invocation log. Follow the [restart checklist](#resume-after-a-workspace-restart)
+when resuming. Scheduling runs only while the Workspace is running.
 
 ### Optional ZIP preparation
 
