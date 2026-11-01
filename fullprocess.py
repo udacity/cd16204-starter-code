@@ -5,15 +5,20 @@ import diagnostics
 import reporting
 
 ################## Check and read new data
-# Read ingestedfiles.txt from prod_deployment_path.
+# Keep deployed ingestedfiles.txt as model-training provenance, not processing state.
+# Implement output_folder_path/processedfiles.json as unique project-relative CSV paths.
+# Initialize it only after the successful practice run and first reports, before
+# changing input_folder_path. See README: Track successfully processed inputs.
+# Missing/malformed state during automation: stop with a setup/error message.
 
-# Compare the input_folder_path files with that deployed ingestion record.
+# Compare input_folder_path CSV paths with processedfiles.json. Include the folder
+# in each identity; this exercise detects new paths, not edits at existing paths.
 # For this stage, use sourcedata as input_folder_path and models as output_model_path.
 
 
 
 ################## Deciding whether to proceed, part 1
-# If no new files are found, stop before drift checking or reporting.
+# If no new paths are found, stop before ingestion, drift checking or reporting.
 # Otherwise, run ingestion to update the dataset and local ingestedfiles.txt.
 
 
@@ -51,3 +56,12 @@ import reporting
 
 
 
+
+################## Acknowledge successful processing
+# After ALL required stages and both second reports succeed, atomically save the
+# union of prior processed paths and the paths actually ingested in this run.
+# Do this with or without drift; never overwrite deployed provenance without deployment.
+# On failure, preserve the previous processing record and return failure. Repair and
+# retry using the current matching deployment (a completed deployment is not rolled back).
+# Do not infer success from partial outputs or acknowledge files arriving mid-run.
+# Keep runs serialized; verify an unchanged-input rerun stops and a failed run can retry.
