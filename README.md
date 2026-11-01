@@ -1,226 +1,149 @@
-# Serving and Testing an ML Model with FastAPI
+# A Dynamic Risk Assessment System
 
-Complete this project in the supplied Udacity Workspace using local files and
-commands. Build a Census income classifier, evaluate it, and serve predictions
-through FastAPI. The training, inference, API, tests, and HTTP client are learner
-exercises; this starter does not provide a completed solution.
+Starter files for the **A Dynamic Risk Assessment System** project in Udacity's **ML Model Scoring and Monitoring** course (`cd0583`). Build a workflow that trains, deploys, evaluates, and monitors a model for corporate-client attrition risk.
 
-Run commands from the repository root: the directory containing `requirements.txt`,
-`main.py`, `setup.py`, `starter/`, and the supplied `data/census.csv`. Local Git is
-optional. No GitHub/Azure account, remote push, DVC, cloud storage, hosted CI/CD,
-public endpoint, or external runtime service is required. Package installation
-requires network access; Udacity access and submission are still necessary.
+This repository contains **unfinished templates**, not a completed solution. Several files intentionally contain blank assignments or incomplete function bodies and will raise syntax errors until you implement them. Installing dependencies alone does not make the pipeline runnable.
 
-## 1. Set up Python
+Follow the [project classroom](https://learn.udacity.com/cd0583?version=1.2&lessonKey=f247329b-1a30-4dd7-807f-ef12cd975ae3&conceptKey=d7b9b451-4ee0-4b5d-bd99-64f5a67c44fd) and its rubric for the full requirements and submission instructions. Classroom access requires enrollment.
 
-Use Python 3.13 in the supplied Workspace (validated with 3.13.15). Earlier
-pins were validated with Python 3.12.3 locally; the current pytest and requests
-upgrades have not been rerun on 3.12. Create and activate a virtual environment:
+## Set up your environment
 
-```sh
-python3.13 -m venv .venv
-. .venv/bin/activate
+Clone the repository and work from its root directory; the templates load `config.json` and data using relative paths.
+
+```bash
+git clone https://github.com/udacity/cd0583-project-starter-file.git
+cd cd0583-project-starter-file
+```
+
+### Development container
+
+The repository includes a Python 3.14 development-container configuration. With Docker and the VS Code Dev Containers extension available, open the repository and select **Dev Containers: Reopen in Container**. In the container terminal, install the dependencies:
+
+```bash
 python -m pip install -r requirements.txt
-python -m pip install -e .
 python -m pip check
 ```
 
-For local Python 3.12, substitute `python3.12` in both virtual-environment
-creation commands in this guide. See [dependency notes](PYTHON_3_13_UPDATES.md)
-for versions and verification limits. The requirements passed dependency smoke
-checks in a clean virtual environment in the existing Linux Workspace with
-Python 3.13.15. Fresh Workspace image provisioning (issue #11) and
-completed-project end-to-end validation
-(issue #16) remain separate checks.
+The container configuration does not install dependencies automatically.
 
-## 2. Inspect and clean the supplied data
+### Local Python environment
 
-The supplied CSV contains the training data from Becker, B. and Kohavi, R.
-(1996), [Adult, UCI Machine Learning Repository](https://doi.org/10.24432/C5XW20),
-licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-The project adds a header, including the names `fnlgt` and `salary`; the data
-rows are unchanged from UCI's `adult.data`.
+The dependency set has been checked with Python 3.14.3 on Linux ARM64. Other platforms have not been runtime-verified for this starter.
 
-Load `data/census.csv` with pandas. Remove surrounding whitespace from column
-names and string values, and decide how to handle missing-value markers such as
-`?`. Preserve meaningful internal characters, original column names (including
-`fnlgt` and hyphenated names), and the target `salary`. Do not remove every space
-from the raw file indiscriminately. Keep the supplied CSV in the submission and
-apply reproducible cleaning in code so an extracted project can use it.
+On macOS or Linux, create and activate a virtual environment:
 
-## 3. Train, evaluate, and save inference artifacts
-
-Complete `starter/train_model.py` and the unfinished functions in
-`starter/ml/model.py`. Import preprocessing with
-`from starter.ml.data import process_data`. Split the cleaned data into training
-and held-out test sets before fitting preprocessing or the classifier. Fit the
-encoder and label binarizer only on training data; reuse those fitted objects
-for the test set and inference. Use a reproducible split.
-
-Evaluate precision, recall, and F1 on the held-out set. Compute the same metrics
-for categorical slices and save readable results, including each slice's sample
-count, to root-level `slice_output.txt`. Explain empty or unsupported slices.
-
-Use Python's `pickle` module to save the trained classifier and fitted objects
-at these exact paths, creating `model/` when needed:
-
-- `model/model.pkl`: trained classifier.
-- `model/encoder.pkl`: fitted categorical encoder.
-- `model/lb.pkl`: fitted label binarizer.
-
-If your model requires additional fitted preprocessing, include it inside the
-serialized classifier/pipeline or encoder artifact so these three files contain
-all inference state. Preserve feature order and cleaning behavior between
-training and serving. Load only your own trusted pickle artifacts.
-
-Run training from the root after completing the implementation:
-
-```sh
-python -m starter.train_model
-```
-
-Copy `model_card_template.md` to `model_card.md` and complete it with the data,
-model, held-out metrics, slice findings, intended use, and limitations. Record
-any cleaning and feature choices needed to reproduce the model.
-
-## 4. Implement the API and tests
-
-Implement `app` in `main.py`. Load the saved artifacts without retraining on
-startup or requests. Resolve artifact paths relative to the project files.
-
-- `GET /`: HTTP 200 with a JSON welcome message; document its exact body.
-- `POST /`: accept one record's features, excluding `salary`, and return HTTP
-  200 with `{"prediction": "<=50K"}` or `{"prediction": ">50K"}`. Decode the
-  predicted label using the fitted binarizer. Document the feature schema.
-- Use typed Pydantic request fields and aliases for hyphenated Census names.
-  Include a valid request example in the generated OpenAPI JSON.
-
-Write at least three ML-function tests and three API tests under `tests/`, named
-`test_*.py`. API tests must check the GET status and body and successful POST
-status and prediction for both classes. Choose two inputs whose opposite
-predictions you have confirmed with your fitted model; arbitrary fixed records
-are not guaranteed to produce particular classes. Use FastAPI's TestClient.
-Test preprocessing reuse, model behavior, and metrics with meaningful assertions.
-Do not retrain the project model merely to load it for API tests.
-
-## 5. Run local validation
-
-```sh
-python scripts/validate.py
-```
-
-This runs `python -m pytest tests/` followed by
-`python -m flake8 main.py starter/ tests/ scripts/ inference_client.py` and writes
-both outputs and exit statuses to `evidence/validation.txt`. Complete the HTTP
-client in the next section before the final validation run. Both checks must
-pass; incomplete starter files are expected to fail. The old `sanitycheck.py`
-helper is not the validation or submission gate for this workflow.
-
-## 6. Exercise the running server over real HTTP
-
-Start the server in one activated terminal at the project root:
-
-```sh
-python -m uvicorn main:app --host 127.0.0.1 --port 8000
-```
-
-Implement root-level `inference_client.py` with `requests`. It must use finite
-request timeouts, print the URL, status, and response body, and exit nonzero on
-connection errors or failed assertions. Against `http://127.0.0.1:8000`, it must:
-
-1. Call `GET /` and assert HTTP 200 and the documented welcome body.
-2. Call `POST /` with each of the two model-confirmed inputs, asserting HTTP 200
-   and the expected opposite prediction labels. Print both request bodies.
-3. Fetch `/openapi.json`, assert HTTP 200 and the presence of your request
-   example(s), and save the JSON to `evidence/openapi.json`.
-
-In a second activated terminal, run:
-
-```sh
-mkdir -p evidence
-python inference_client.py > evidence/http.txt 2>&1
-cat evidence/http.txt
-python scripts/validate.py
-```
-
-Check the client command's exit status before running another command. Preserve
-successful text evidence only after resolving failures. TestClient tests alone
-do not establish real HTTP operation. OpenAPI JSON provides request-example
-evidence without requiring Swagger UI, screenshots, or a CDN. Stop Uvicorn with
-Ctrl-C when finished.
-
-## 7. Package and verify the submission
-
-Create and verify the ZIP as a reproducibility check for every submission route.
-Submitting directly from the Workspace does not require uploading this ZIP.
-
-Review source, documentation, and evidence for credentials or personal secrets
-before packaging. Do not embed secrets in allowed files. Run:
-
-```sh
-python scripts/package_submission.py
-python -m zipfile -l submission.zip
-```
-
-The packager requires the following exact root-relative files, and includes only
-these plus non-hidden `.py` files recursively under `starter/` and `tests/`:
-
-- `README.md`, `requirements.txt`, `setup.py`, `PYTHON_3_13_UPDATES.md`.
-- `main.py`, `inference_client.py`, `starter/__init__.py`,
-  `starter/train_model.py`, `starter/ml/__init__.py`, `starter/ml/data.py`,
-  `starter/ml/model.py`, and at least one `tests/test_*.py` (possibly nested).
-- `scripts/validate.py`, `scripts/package_submission.py`.
-- `data/census.csv`.
-- `model/model.pkl`, `model/encoder.pkl`, `model/lb.pkl`.
-- `model_card.md`, `slice_output.txt`.
-- `evidence/validation.txt`, `evidence/http.txt`, `evidence/openapi.json`.
-
-Keep project Python helpers in `starter/`; the archive does not include arbitrary
-root scripts, auxiliary data, or extra model files. Missing or empty required
-files fail packaging (empty `__init__.py` markers are allowed). Symlinks in
-selected paths or visible source trees are rejected. Environments, `.git`,
-caches, hidden files, `.env`, credentials files, screenshots, prior archives,
-and unrelated files outside the allowlist are excluded. Review the printed file
-list; the packager cannot detect secrets embedded in source or evidence, nor
-verify that learner results are correct. It refuses to overwrite an existing
-`submission.zip`; move that archive aside before generating a replacement.
-
-Extract into a new empty directory (choose a new path for each attempt):
-
-```sh
-python -m zipfile -e submission.zip /tmp/census-submission-check
-cd /tmp/census-submission-check
-python3.13 -m venv .venv
-. .venv/bin/activate
+```bash
+python3.14 -m venv .venv
+source .venv/bin/activate
 python -m pip install -r requirements.txt
-python -m pip install -e .
 python -m pip check
-python scripts/validate.py
 ```
 
-Without running training, start Uvicorn and run the HTTP client again as in
-section 6. Confirm that the extracted artifacts produce both expected classes
-and the same API behavior. This verifies that no original working-directory
-files or external runtime services are needed. If changes are needed, fix the
-original project, regenerate evidence and ZIP, and repeat extraction.
+## Repository layout
 
-## 8. Submit your project
+| File or directory | Purpose |
+| --- | --- |
+| `ingestion.py` | Implement data ingestion and ingestion records. |
+| `training.py` | Implement model training and model persistence. |
+| `scoring.py` | Implement model scoring. |
+| `deployment.py` | Implement deployment of the model and associated records. |
+| `diagnostics.py` | Implement predictions, dataset statistics, missing-data checks, timing, and dependency diagnostics. |
+| `reporting.py` | Implement model-performance reports. |
+| `app.py` | Implement the Flask API endpoints. |
+| `apicalls.py` | Implement API calls and save their combined responses. |
+| `fullprocess.py` | Implement the new-data and model-drift automation workflow. |
+| `wsgi.py` | Expose the Flask application to a WSGI server. |
+| `config.json` | Configure input, output, test-data, and deployment paths. |
+| `requirements.txt` | Pin the project's Python dependencies. |
+| `practicedata/` | Supplied practice inputs: `dataset1.csv` and `dataset2.csv`. |
+| `sourcedata/` | Supplied source inputs: `dataset3.csv` and `dataset4.csv`. |
+| `testdata/` | Supplied evaluation input: `testdata.csv`. |
+| `ingesteddata/` | Destination for your ingestion outputs. |
+| `practicemodels/` | Destination for your practice models and reports. |
+| `models/` | Destination for your later-stage models and reports. |
+| `production_deployment/` | Destination for your deployed model and associated records. |
 
-**Recommended: submit directly from the Workspace.** Save all required project
-files under `/workspace/cd16204-starter-code/`, then use **Submit Project** in the
-Workspace. Keep the source, data, model artifacts, tests, documentation, and
-evidence available as project files, not only inside `submission.zip`. This route
-requires no external account, repository URL, Git metadata, reviewer invitation,
-or manual ZIP upload.
+The five supplied CSV files contain fabricated corporate data. The four output directories initially contain only `.gitkeep` files; these preserve the directory structure and are not input data.
 
-You can also choose either of these optional alternatives on **Project
-Submission**:
+## Configuration
 
-- **Upload zip file:** upload the self-contained `submission.zip` after verifying
-  the extracted copy as described above.
-- **Select GitHub repo:** select a repository containing the same required
-  project files and evidence. Only this optional route requires a GitHub account.
+The starter begins with practice paths:
 
-All routes use the same rubric, required files, and validation evidence. Hosted
-CI/CD, CI/CD screenshots, cloud deployment, and a public API endpoint are not
-required. Keep an external backup before leaving or resetting the Workspace.
+| Setting | Initial value |
+| --- | --- |
+| `input_folder_path` | `practicedata` |
+| `output_folder_path` | `ingesteddata` |
+| `test_data_path` | `testdata` |
+| `output_model_path` | `practicemodels` |
+| `prod_deployment_path` | `production_deployment` |
+
+For the process-automation stage, follow the classroom instructions to switch `input_folder_path` to `sourcedata` and `output_model_path` to `models`. Keep the directory structure consistent when using a local environment or the Udacity Workspace.
+
+## Complete the project
+
+1. **Data ingestion:** combine the input CSV data and record which files were ingested.
+2. **Training, scoring, and deployment:** train and evaluate a model, then deploy it with its score and ingestion records.
+3. **Diagnostics:** implement prediction, data-quality, timing, and dependency checks.
+4. **Reporting and API:** generate a confusion-matrix report, implement the endpoints below, and save their combined responses.
+5. **Process automation:** stop if there is no new data. Otherwise, ingest and check for drift, retrain and redeploy only when needed, then generate reports using the current deployed model in either case. Configure the required cron job according to the classroom instructions.
+
+These are implementation tasks, not features already provided by the templates. Generated models, scores, reports, API responses, and a completed cron job are intentionally absent from the starter.
+
+Calculate the mean, median, and standard deviation for each numeric column in the ingested dataset and return the results as a Python list. Calculate missing-value percentages for every column. Time ingestion and training, as specified by Step 3 and the rubric, without replacing the deployed model.
+
+Pass a model and a DataFrame explicitly to `score_model(model, dataframe, score_path=None)`. Use the following model, data, and score-saving behavior in each context:
+
+| Context | Model | Evaluation data | Save a score? |
+| --- | --- | --- | --- |
+| Step 2 and replacement training | `output_model_path` | `test_data_path/testdata.csv` | `output_model_path/latestscore.txt` |
+| `/scoring` API | `prod_deployment_path` | `test_data_path/testdata.csv` | No |
+| Drift check | Same deployed model | Newly ingested data | No |
+
+Retrain only when the drift-check F1 score is lower than the deployed baseline. Score the replacement before deploying it so that its `latestscore.txt` belongs to that model. The prediction helper accepts a DataFrame; the API must load the dataset location supplied by its caller before invoking it.
+
+After processing new data, run reporting and API calls whether or not drift occurred, completing any redeployment first. Use the current deployed model and configured test data for the confusion matrix and API score. Save `confusionmatrix2.png` and `apireturns2.txt` while preserving the first-run files. Without drift, keep the deployed model and baseline score unchanged; identical predictions, scores, and confusion matrices are valid when the model and test data are unchanged. Timing and dependency results may vary. Do not force retraining or alter the baseline to produce different reports.
+
+### API development
+
+After implementing the required functions and creating the necessary data and model artifacts, start the development API from the repository root:
+
+```bash
+python app.py
+```
+
+The template uses port **8000**. In a second terminal using the same Python environment, run your completed `apicalls.py` against `http://127.0.0.1:8000`.
+
+| Method | Endpoint | Intended response |
+| --- | --- | --- |
+| POST | `/prediction` | Predictions for the supplied dataset location. |
+| GET | `/scoring` | The deployed model's score. |
+| GET | `/summarystats` | Dataset summary statistics. |
+| GET | `/diagnostics` | Timing, missing-data, and dependency diagnostics. |
+
+The initial endpoint bodies do not return usable responses. Keep the model and data used by each endpoint consistent with the classroom requirements. The included Flask debug server is for development.
+
+## Validate the automation branches
+
+`validation_data/no_drift/no_drift.csv` and `validation_data/drift/drift.csv` are synthetic fixtures for checking control flow, not realistic performance benchmarks. Each contains eight unique rows and both target classes. They share feature values but deliberately use opposite labels. Keep them separate from `practicedata`, `sourcedata`, and `testdata`; do not ingest the entire `validation_data` tree.
+
+Before each scenario, use an independent project copy and complete Steps 1–4 with the original practice configuration. Train on all 26 deduplicated practice rows, use the three specified features and the Logistic Regression settings in `training.py`, and score on the unchanged `testdata/testdata.csv`. Deploy that model, its score, and the practice ingestion record. Preserve these initial artifacts; do not carry a scenario's replacement model or ingestion record into another scenario.
+
+Then set `input_folder_path` as shown below, set `output_model_path` to `models`, and run your completed `fullprocess.py` with the API running from the same project root.
+
+| Scenario / `input_folder_path` | Initial model F1 on scenario data | Expected behavior |
+| --- | --- | --- |
+| No new data / `practicedata` | Not evaluated | Stop; no retraining, deployment, or second reports. |
+| No drift / `validation_data/no_drift` | 1.0 | Keep the deployed model and baseline; generate both second reports. |
+| Drift / `validation_data/drift` | 0.0 | Retrain, score the replacement on test data, deploy, then generate both second reports. |
+
+The initial test-data baseline is approximately **0.5714**. These values were checked with Python 3.13.15 and scikit-learn 1.8.0 on macOS ARM64; they assume the initial model described above. A different model or preprocessing may change the comparison. Do not edit the baseline score to force a branch. In the drift scenario, 0.0 is the initial deployed model's score on the fixture, not the replacement model's test score.
+
+Check that each new-data scenario creates `confusionmatrix2.png` and `apireturns2.txt` and preserves the first-run reports. In the no-drift scenario, also confirm that the deployed model and baseline score remain unchanged. Restore the classroom configuration (`sourcedata` and `models`) for the final project run.
+
+## Submission
+
+Use the classroom rubric as the final checklist. Submit the required scripts and generated outputs in a ZIP, including both report pairs (`confusionmatrix.png` / `apireturns.txt` and `confusionmatrix2.png` / `apireturns2.txt`) and `cronjob.txt`. The second pair is required after new-data processing even without drift. The starter repository itself is not a completed submission.
+
+## License
+
+See [LICENSE](LICENSE) for the repository's license terms.
