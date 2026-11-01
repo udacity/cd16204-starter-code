@@ -214,7 +214,92 @@ Check that each new-data scenario creates `confusionmatrix2.png` and `apireturns
 
 ## Submission
 
-Use the classroom rubric as the final checklist. Submit the required scripts and generated outputs in a ZIP, including both report pairs (`confusionmatrix.png` / `apireturns.txt` and `confusionmatrix2.png` / `apireturns2.txt`) and `cronjob.txt`. The second pair is required after new-data processing even without drift. The starter repository itself is not a completed submission.
+### Choose a submission method
+
+**Workspace submission is recommended.** Keep the completed project under
+`/workspace/cd16204-starter-code` and submit through the course Workspace.
+This route requires no external account, repository URL, Git history or manual
+ZIP upload. Save all files and check the rubric before submitting. Download a
+backup before any Workspace data Reset; a running API or installed cron entry
+does not replace saved source and evidence files.
+
+**ZIP upload and GitHub repository selection are optional alternatives.** Use
+the same files and directory layout for every method. For GitHub, select your
+completed repository through the available submission option and confirm the
+required generated files are included even if ignored by Git. A bare/private
+Azure Repos URL, pipeline link, screenshot or starter-only repository is not a
+substitute for the required source and artifacts. No hosted deployment is needed.
+
+### Required-file checklist
+
+All paths below are relative to the project root. Preserve directories; do not
+flatten files with the same name into one folder.
+
+| Include | Files and purpose |
+| --- | --- |
+| Completed source | `ingestion.py`, `training.py`, `scoring.py`, `deployment.py`, `diagnostics.py`, `reporting.py`, `app.py`, `apicalls.py`, `fullprocess.py`. Keep supplied `wsgi.py` as context; WSGI hosting is not required. |
+| Configuration and reproduction notes | `config.json`, `requirements.txt`, `dependency_reference.json`, and `README.md` with your run order, configuration changes, observed drift/no-drift outcome and scheduling evidence location. Requirements/reference files record the supplied environment; do not install or upgrade packages. |
+| Supplied inputs | `practicedata/dataset1.csv`, `practicedata/dataset2.csv`, `sourcedata/dataset3.csv`, `sourcedata/dataset4.csv`, `testdata/testdata.csv`, and the supplied `validation_data/` fixtures for separate branch checks. Do not mix validation fixtures into the final source-data run. |
+| Ingestion outputs | `ingesteddata/finaldata.csv` and `ingesteddata/ingestedfiles.txt` from the final configured ingestion. |
+| Practice artifacts | `practicemodels/trainedmodel.pkl` and its matching `practicemodels/latestscore.txt`; preserve these initial-stage outputs. |
+| Final candidate artifacts, when retraining occurred | `models/trainedmodel.pkl` and its matching `models/latestscore.txt`. If no drift occurred, this directory may remain empty; do not train or fabricate artifacts just to fill it. |
+| Current deployment | `production_deployment/trainedmodel.pkl`, its matching `production_deployment/latestscore.txt`, and `production_deployment/ingestedfiles.txt`. With no drift, preserve the deployed model and baseline score. |
+| Both report pairs | Root-level `confusionmatrix.png`, `apireturns.txt`, `confusionmatrix2.png` and `apireturns2.txt`. Generate the second pair after processing new data even without drift; identical predictions, scores or matrices can be valid. |
+| Scheduling evidence | Root-level `cronjob.txt` containing the single ten-minute project entry, plus `fullprocess.log` showing a timestamped actual scheduled invocation and its result. Preserve unrelated installed jobs; do not submit them. Manual execution or a crontab listing alone does not prove scheduling ran. |
+
+Optional PDF, time-trend or SQLite work supplements these required files. It does
+not replace them or introduce required software installation.
+
+### Check reproducibility
+
+Keep the submitted `config.json` set to `sourcedata` and `models`, with the other
+paths unchanged. Include the actual data and matching deployed artifacts, not
+only filenames, empty placeholders or screenshots. Use the preinstalled `ml`
+environment; required results must not depend on an external service or account.
+
+In a separate disposable copy, follow Steps 1–4 using the initial practice
+configuration and your completed script entry points. Start `python app.py` in
+one terminal; use the same root/environment in another for `python apicalls.py`
+and `python reporting.py`. Then switch to the final configuration and run
+`python fullprocess.py` as in Step 5, keeping the API available. Do not rerun
+training or ingestion over your only saved submission artifacts. Repeating the
+process with no new data should stop before drift checks or new reports.
+
+Record how to reproduce the three automation branches using the README's
+separate validation scenarios. Keep the first report pair, preserve the
+deployed baseline during drift checks, and never change labels or baseline
+scores to force drift. Cron registration is Workspace state, not a portable
+file: document the supported installation/recovery steps and retain the actual
+invocation log. Scheduling runs only while the Workspace is running.
+
+### Optional ZIP preparation
+
+Use the Workspace file interface to download an archive if available, or create
+one with the existing Python standard library. From the completed project root:
+
+```bash
+python -m zipfile -c ../cd16204-submission.zip README.md ingestion.py training.py scoring.py deployment.py diagnostics.py reporting.py app.py wsgi.py apicalls.py fullprocess.py config.json requirements.txt dependency_reference.json practicedata sourcedata testdata validation_data ingesteddata practicemodels models production_deployment confusionmatrix.png apireturns.txt confusionmatrix2.png apireturns2.txt cronjob.txt fullprocess.log
+python -m zipfile -l ../cd16204-submission.zip
+```
+
+Add optional work only if attempted. Extract the ZIP into an empty disposable
+folder and compare it with the checklist before uploading. Confirm that data,
+models and reports are present and readable, paths remain relative to the
+extracted root, and your completed scripts can reproduce the results there in
+the supplied environment. Creating an archive alone is not a runtime check.
+
+### Protect sensitive information
+
+For every submission method, exclude credentials, tokens, private keys,
+secret-bearing `.env` files, confidential employer data and unmasked pipeline
+logs. Rotate any exposed credential under your provider/organization procedure.
+Do not include `.git`, virtual/Conda environments, caches or unrelated files.
+Keep only the project-specific scheduling log and remove sensitive content.
+Never invite unknown reviewers to a private organization or weaken permissions;
+use the Workspace or optional ZIP route if repository access is unsuitable.
+
+The starter templates alone are not a completed submission. Review every
+specification in the course project rubric before submitting.
 
 ## License
 
