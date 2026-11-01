@@ -124,6 +124,37 @@ the configuration to `sourcedata`/`models`, run `python fullprocess.py` with the
 local API running. Retain the required ten-minute scheduling exercise from the
 classroom; manual execution alone does not replace it.
 
+### Stage checkpoints
+
+Use this map while implementing the project. **The commands below apply to your
+completed scripts, not the unfinished starter.** Add script entry points where
+needed. Run from `/workspace/cd16204-starter-code` with the existing `ml`
+interpreter (`/opt/conda/envs/ml/bin/python`); use the same root/environment in
+each terminal. All output paths below are relative to that root.
+
+Keep `input_folder_path=practicedata` and `output_model_path=practicemodels` for
+Steps 1–4. After the practice run and first reports succeed, initialize
+`ingesteddata/processedfiles.json` from the practice ingestion record and folder.
+Only then switch to `input_folder_path=sourcedata` and `output_model_path=models`
+for Step 5. Keep the other configuration paths unchanged.
+
+| Stage / prerequisites | Run, result and check |
+| --- | --- |
+| **1. Ingestion** — Practice CSVs and initial configuration. | **Run:** `python ingestion.py` **Result:** `ingesteddata/finaldata.csv` and `ingesteddata/ingestedfiles.txt`. **Check:** Practice data has 26 unique rows; recorded filenames match the discovered CSVs. |
+| **2. Train, score, deploy** — Step 1 outputs and the supplied test CSV. | **Run:** In order: `python training.py`, `python scoring.py`, `python deployment.py`. **Result:** `practicemodels/trainedmodel.pkl` and matching `latestscore.txt`; model, score and ingestion record copied to `production_deployment/`. **Check:** Saved model loads and predicts; saved F1 belongs to that model on test data; deployed copies match their sources. |
+| **3. Diagnostics** — Ingested data, deployed model and bundled offline dependency reference. | **Run:** `python diagnostics.py` **Result:** Predictions, numeric statistics, all-column missing percentages, two timings in seconds and the dated offline dependency comparison; no separate diagnostic file is required. **Check:** Check results against their inputs, timing order (ingestion then training), and unchanged deployment. No package installation or registry query. |
+| **4. API and first reports** — Steps 1–3 implemented, deployed artifacts and test data. | **Run:** Terminal 1: `python app.py`; keep it running. Terminal 2: `python apicalls.py`, then `python reporting.py`. **Result:** API at `http://127.0.0.1:8000`; root-level `apireturns.txt` and `confusionmatrix.png`. **Check:** All four valid endpoint requests return HTTP 200 with meaningful results; the matrix agrees with deployed-model test predictions. |
+| **5. Process automation** — Successful Steps 1–4, initialized processing record, final configuration and running API. | **Run:** `python fullprocess.py` **Result:** For new paths: both second reports (`apireturns2.txt`, `confusionmatrix2.png`) and updated processing record; `models/` artifacts only if retraining occurs. **Check:** No new paths: no later stages. Otherwise, lower F1 retrains; equal/higher F1 preserves deployment. Preserve first reports; acknowledge only after success. Repeat unchanged inputs: stop; failure: leave processing record unchanged. |
+| **5. Scheduling** — Completed manual process, running local API and preinstalled scheduler. | **Run:** Check `/etc/init.d/cron status` and `crontab -l`; follow Step 5 to install your ten-minute entry while preserving unrelated jobs. **Result:** Root-level `cronjob.txt` and timestamped `fullprocess.log` showing an actual scheduled invocation. **Check:** Verify installed entry, absolute root/`ml` interpreter, overlap prevention and a logged scheduled result. Manual execution or listing alone is insufficient; jobs run only while Workspace runs. |
+
+These are development checks for the existing requirements, not additional graded
+files or a replacement for the rubric. See the corresponding classroom Steps 1–5
+for implementation requirements, and the detailed [API guidance](#api-development),
+[processing-record contract](#track-successfully-processed-inputs),
+[independent branch checks](#validate-the-automation-branches) and
+[submission checklist](#submission). Use disposable copies for branch/retry checks;
+do not overwrite your only saved submission artifacts.
+
 Calculate the mean, median, and standard deviation for each numeric column in the ingested dataset and return the results as a Python list. Calculate missing-value percentages for every column. Time ingestion and training, as specified by Step 3 and the rubric, without replacing the deployed model.
 
 Pass a model and a DataFrame explicitly to `score_model(model, dataframe, score_path=None)`. Use the following model, data, and score-saving behavior in each context:
