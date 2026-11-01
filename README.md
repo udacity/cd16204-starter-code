@@ -138,6 +138,53 @@ Retrain only when the drift-check F1 score is lower than the deployed baseline. 
 
 After processing new data, run reporting and API calls whether or not drift occurred, completing any redeployment first. Use the current deployed model and configured test data for the confusion matrix and API score. Save `confusionmatrix2.png` and `apireturns2.txt` while preserving the first-run files. Without drift, keep the deployed model and baseline score unchanged; identical predictions, scores, and confusion matrices are valid when the model and test data are unchanged. Timing and dependency results may vary. Do not force retraining or alter the baseline to produce different reports.
 
+### Track successfully processed inputs
+
+Keep three different records:
+
+| Record | Meaning |
+| --- | --- |
+| `output_folder_path/ingestedfiles.txt` | CSV filenames used to build the current ingested dataset. Ingestion alone does not prove the pipeline succeeded. |
+| `prod_deployment_path/ingestedfiles.txt` | Training-input provenance of the deployed model. Update it only when deploying a replacement, together with its matching model and score. |
+| `output_folder_path/processedfiles.json` | Successfully processed input identities across runs; independent of model provenance. |
+
+Implement the processing record yourself as a JSON list of unique project-relative
+CSV paths using `/`, including the input folder (for example,
+`practicedata/dataset1.csv`). Files with the same basename in different folders
+are distinct. This exercise detects new paths, not changed contents at an existing
+path; content hashing is not required.
+
+After completing the initial practice ingestion, training, scoring, deployment
+and first reports, initialize the processing record from the practice ingestion
+record and its input folder, **before** switching to `sourcedata`/`models`.
+Do not initialize it from the newly selected source files. If the record is
+missing later, stop with a setup/recovery message; if malformed, stop with an
+error. Do not infer success from existing reports or silently acknowledge inputs.
+
+In Step 5, compare discovered CSV paths with the processing record, not the
+deployed training provenance. If any path is new, ingest all CSVs in the configured
+input folder as before, then perform drift evaluation and both second reports.
+Only after every required stage succeeds, atomically save the union of the previous
+record and the paths actually ingested in that run. Do this in both drift and
+no-drift cases. Do not rediscover and acknowledge files that arrived during the run.
+With no new paths, stop before ingestion, drift checks, training or reports.
+
+On any failure, leave the previous processing record unchanged and return a
+failure status. Repair the cause and retry the same inputs; partial outputs are
+not proof of success. If deployment already succeeded before reporting failed,
+retain the matching deployed model/score/provenance and retry using that current
+deployment; preserve the first reports and acknowledge inputs only after success.
+Do not promise automatic rollback of a completed deployment. Keep scheduled runs
+serialized with the existing overlap lock.
+
+For each independent validation scenario, initialize from that copy's successful
+practice run. After each new-data scenario, rerun unchanged inputs and check that
+no further stages run and deployment/reports stay unchanged. Also check a failed
+report request (for example with the API stopped): the processing record must
+stay unchanged, and a successful retry after recovery must acknowledge the inputs.
+Include the processing record with submission artifacts; do not ship a prefilled
+record in the unfinished starter.
+
 ### Offline dependency diagnostics
 
 Implement `outdated_packages_list()` in `diagnostics.py` using the root-level
@@ -198,7 +245,7 @@ The initial endpoint bodies do not return usable responses. Keep the model and d
 
 `validation_data/no_drift/no_drift.csv` and `validation_data/drift/drift.csv` are synthetic fixtures for checking control flow, not realistic performance benchmarks. Each contains eight unique rows and both target classes. They share feature values but deliberately use opposite labels. Keep them separate from `practicedata`, `sourcedata`, and `testdata`; do not ingest the entire `validation_data` tree.
 
-Before each scenario, use an independent project copy and complete Steps 1–4 with the original practice configuration. Train on all 26 deduplicated practice rows, use the three specified features and the Logistic Regression settings in `training.py`, and score on the unchanged `testdata/testdata.csv`. Deploy that model, its score, and the practice ingestion record. Preserve these initial artifacts; do not carry a scenario's replacement model or ingestion record into another scenario.
+Before each scenario, use an independent project copy and complete Steps 1–4 with the original practice configuration. Train on all 26 deduplicated practice rows, use the three specified features and the Logistic Regression settings in `training.py`, and score on the unchanged `testdata/testdata.csv`. Deploy that model, its score, and the practice ingestion record. Initialize `processedfiles.json` only after the practice run and first reports succeed, as described above. Preserve these initial artifacts; do not carry a scenario's replacement model or ingestion record into another scenario.
 
 Then set `input_folder_path` as shown below, set `output_model_path` to `models`, and run your completed `fullprocess.py` with the API running from the same project root.
 
@@ -240,7 +287,7 @@ flatten files with the same name into one folder.
 | Completed source | `ingestion.py`, `training.py`, `scoring.py`, `deployment.py`, `diagnostics.py`, `reporting.py`, `app.py`, `apicalls.py`, `fullprocess.py`. Keep supplied `wsgi.py` as context; WSGI hosting is not required. |
 | Configuration and reproduction notes | `config.json`, `requirements.txt`, `dependency_reference.json`, and `README.md` with your run order, configuration changes, observed drift/no-drift outcome and scheduling evidence location. Requirements/reference files record the supplied environment; do not install or upgrade packages. |
 | Supplied inputs | `practicedata/dataset1.csv`, `practicedata/dataset2.csv`, `sourcedata/dataset3.csv`, `sourcedata/dataset4.csv`, `testdata/testdata.csv`, and the supplied `validation_data/` fixtures for separate branch checks. Do not mix validation fixtures into the final source-data run. |
-| Ingestion outputs | `ingesteddata/finaldata.csv` and `ingesteddata/ingestedfiles.txt` from the final configured ingestion. |
+| Ingestion outputs | `ingesteddata/finaldata.csv` and `ingesteddata/ingestedfiles.txt` from the final configured ingestion, plus `ingesteddata/processedfiles.json` recording successfully processed inputs. |
 | Practice artifacts | `practicemodels/trainedmodel.pkl` and its matching `practicemodels/latestscore.txt`; preserve these initial-stage outputs. |
 | Final candidate artifacts, when retraining occurred | `models/trainedmodel.pkl` and its matching `models/latestscore.txt`. If no drift occurred, this directory may remain empty; do not train or fabricate artifacts just to fill it. |
 | Current deployment | `production_deployment/trainedmodel.pkl`, its matching `production_deployment/latestscore.txt`, and `production_deployment/ingestedfiles.txt`. With no drift, preserve the deployed model and baseline score. |
