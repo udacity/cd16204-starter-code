@@ -38,8 +38,15 @@ def execution_time():
 
 ################## Function to check dependencies
 def outdated_packages_list():
-    # Report every dependency used by the project in a three-column table:
-    # package name, installed version, and latest available version. Do not upgrade.
+    # Implement an offline comparison using root-level dependency_reference.json.
+    # For every distribution in its packages mapping, report a three-column table:
+    # package name, installed version, and reference version (dated snapshot).
+    # Read installed versions locally with importlib.metadata; show missing
+    # distributions as "not installed" instead of failing the entire report.
+    # Include captured_on_utc and provenance with the report so its basis is clear.
+    # A version difference is not proof that the installed version is older.
+    # Do not query a registry, run pip list --outdated, or install/upgrade packages.
+    # Keep this function name for the API exercise; it does not mean live latest.
 
 
 if __name__ == '__main__':

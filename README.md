@@ -48,6 +48,7 @@ optional setup is a learner installation requirement.
 | `wsgi.py` | Expose the Flask application to a WSGI server. |
 | `config.json` | Configure input, output, test-data, and deployment paths. |
 | `requirements.txt` | Pin the project's Python dependencies. |
+| `dependency_reference.json` | Dated shared `ml` version snapshot for the offline diagnostics exercise. |
 | `practicedata/` | Supplied practice inputs: `dataset1.csv` and `dataset2.csv`. |
 | `sourcedata/` | Supplied source inputs: `dataset3.csv` and `dataset4.csv`. |
 | `testdata/` | Supplied evaluation input: `testdata.csv`. |
@@ -95,6 +96,31 @@ Pass a model and a DataFrame explicitly to `score_model(model, dataframe, score_
 Retrain only when the drift-check F1 score is lower than the deployed baseline. Score the replacement before deploying it so that its `latestscore.txt` belongs to that model. The prediction helper accepts a DataFrame; the API must load the dataset location supplied by its caller before invoking it.
 
 After processing new data, run reporting and API calls whether or not drift occurred, completing any redeployment first. Use the current deployed model and configured test data for the confusion matrix and API score. Save `confusionmatrix2.png` and `apireturns2.txt` while preserving the first-run files. Without drift, keep the deployed model and baseline score unchanged; identical predictions, scores, and confusion matrices are valid when the model and test data are unchanged. Timing and dependency results may vary. Do not force retraining or alter the baseline to produce different reports.
+
+### Offline dependency diagnostics
+
+Implement `outdated_packages_list()` in `diagnostics.py` using the root-level
+[`dependency_reference.json`](dependency_reference.json). Its `packages` mapping
+contains distribution names and reference versions; `captured_on_utc` and
+`provenance` identify the observation date, source and environment. The reference
+records the existing shared `ml` versions verified in issue #31. It is a dated
+snapshot, **not live latest package-index data or an upgrade recommendation**.
+
+For every listed distribution, read the installed version locally with Python's
+standard-library `importlib.metadata`. Report three columns: package name,
+installed version, and reference version (dated snapshot). Display missing
+distributions as `not installed` and continue with the remaining packages.
+Include the snapshot date and provenance with the report. A difference alone
+does not establish that a package is older, unsafe or needs upgrading. Return
+the dependency table through the diagnostics API alongside the other required
+diagnostics. The existing function name is retained for compatibility.
+
+Do not query PyPI or another registry, run `pip list --outdated`, or install,
+upgrade or downgrade packages. Preserve the shared `ml` environment. The manifest
+is support data; the comparison function and its report remain learner work.
+Maintainers update the manifest only after verifying a new shared baseline and
+recording its provenance; students do not refresh it from the network. Include
+the reference file with the project source in the Workspace or optional archive.
 
 ### API development
 
