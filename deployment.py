@@ -19,6 +19,8 @@ prod_deployment_path = os.path.join(config['prod_deployment_path'])
 
 
 #################### Function for deployment
+# Run from the CD16204 project root. Implement the function and a script entry
+# point so `python deployment.py` deploys the configured candidate artifacts.
 def store_model_into_pickle(model):
     # Copy the latest pickle file, the latestscore.txt value, 
     # and the ingestedfiles.txt file into the deployment directory.

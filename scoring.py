@@ -19,6 +19,8 @@ test_data_path = os.path.join(config['test_data_path'])
 
 
 ################# Function for model scoring
+# Run from the CD16204 project root. Implement a script entry point for Step 2
+# that selects the candidate model/test data and saves its score under output_model_path.
 def score_model(model, dataframe, score_path=None):
     # Calculate and return the supplied model's F1 score on the supplied DataFrame.
     # Step 2: use the output_model_path model and test_data_path/testdata.csv.
