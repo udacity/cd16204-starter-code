@@ -1,4 +1,5 @@
 {
-    "name": "Python 3.14",
-    "image": "mcr.microsoft.com/devcontainers/python:3-3.14-trixie"
+    "name": "Python 3.13 (optional reviewer environment)",
+    "image": "mcr.microsoft.com/devcontainers/python:3.13-bookworm",
+    "postCreateCommand": "python -m pip install -r requirements.txt && python -m pip check"
 }
