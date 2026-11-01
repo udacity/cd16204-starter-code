@@ -221,6 +221,53 @@ stay unchanged, and a successful retry after recovery must acknowledge the input
 Include the processing record with submission artifacts; do not ship a prefilled
 record in the unfinished starter.
 
+### Diagnostic output contract
+
+Implement these shapes in `diagnostics.py` and reuse them in `app.py`. Read
+`output_folder_path/finaldata.csv` for statistics and missing-data checks.
+Preserve CSV column order; do not alphabetize or hard-code the supplied columns.
+
+| Function | Required return shape and conventions |
+| --- | --- |
+| `model_predictions(dataframe)` | A list of predicted class labels in input row order, using the deployed model and its training predictor columns. |
+| `dataframe_summary()` | A list of `[mean, median, sample_std]` triples, one per numeric column in original column order, including `exited`. Skip NA values separately for each column. Use sample standard deviation (`ddof=1`, denominator nonmissing count minus one). With no nonmissing values, all three results are `None`; with one, only standard deviation is `None`. Represent any nonfinite statistical result as `None`. |
+| `missing_data()` | One missing percentage per column, including nonnumeric columns, in original column order. Use pandas NA detection and `100 × NA count / total row count`; zero is not missing. Return values from 0 to 100, not fractions. For a zero-row dataset, return `None` for each column. Do not impute or modify the data. |
+| `execution_time()` | `[ingestion_seconds, training_seconds]`: two finite nonnegative elapsed times in seconds, measured separately. Isolate timing outputs so diagnostics do not alter the deployed model, baseline, training provenance or processed-input record. |
+| `outdated_packages_list()` | An object with `snapshot_date`, `provenance` and `rows`. Copy date from the reference's `captured_on_utc` and retain its `provenance` object. In the reference `packages` order, return one `[package_name, installed_version, reference_version]` row per entry; versions are strings and a missing installed distribution is `"not installed"`. Keep the offline reference rules below. |
+
+Use these successful HTTP 200 JSON response shapes. Symbols below describe
+values, not literal response strings or supplied dataset answers:
+
+```text
+POST /prediction
+{"predictions": [class_label, ...]}
+GET /scoring
+{"f1": number}
+GET /summarystats
+{"columns": [numeric_column_name, ...],
+ "statistics": [[mean, median, sample_std], ...]}
+GET /diagnostics
+{"timing_seconds": [ingestion_seconds, training_seconds],
+ "missing_columns": [every_column_name, ...],
+ "missing_percentages": [percentage, ...],
+ "dependencies": {"snapshot_date": reference_date,
+                  "provenance": reference_provenance_object,
+                  "rows": [
+                    [package_name, installed_version, reference_version],
+                    ...]}}
+```
+
+Each name list aligns positionally with its value list. Convert results to native
+JSON-compatible numbers, lists, strings and objects; undefined statistics and
+empty-dataset percentages become JSON `null`. Do not emit `NaN` or `Infinity`,
+NumPy scalars, DataFrames or stringified Python lists as JSON values. No fixed
+rounding is required; compare numeric results with floating-point tolerance.
+API scoring uses configured test data and the current deployed model without
+saving a score. Prediction uses the caller's dataset. This specifies existing
+outputs; no new diagnostic file, installation or implementation is supplied.
+Degenerate-data rules apply to statistics and missing-data diagnostics only;
+no new support for training or prediction on incomplete/empty inputs is required.
+
 ### Offline dependency diagnostics
 
 Implement `outdated_packages_list()` in `diagnostics.py` using the root-level
